@@ -1,7 +1,7 @@
 
 <# 
 .SYNOPSIS
-    Ce script sert à convertir un fichier CSV provenant d'une exportation de données de compte Desjardins vers un fichier lisible par Monarch Money.
+    Ce script sert à convertir un fichier CSV provenant d'une exportation de données de compte Desjardins vers un fichier CSV lisible par Monarch Money.
 
 .PARAMETER [InFile]
     Fichier CSV source de Desjardins
@@ -19,10 +19,16 @@ param(
 	[string]$InFile
 )
 
+### Variables principales
+$compteMonarch = "Nom du compte correspondant dans Monarch"
+$tagMonarch = $null # Changer $null pour "Nom du tag" si vous souhaitez ajouter un tag dans Monarch pour toutes les transactions importées
+$noteMonarch = $null # Changer $null pour "Contenu de la note" si vous souhaitez ajouter une note dans Monarch pour toutes les transactions importées
+
+
 # Charger mapping categories
 $database = import-csv .\monarch_mapping_database.csv -encoding utf8
 
-# Importer fichier dans une variable
+# Importer fichier source Desjardins dans une variable
 $source = Import-Csv $InFile -Encoding ansi -Header 'Caisse','NumCompte','TypeCompte','Date','NumLigne','Description','Vide1','Retrait','Depot','Vide2','Vide3','Vide4','Vide5','Solde'
 
 # Créer nouvelle variable nettoyée
@@ -33,28 +39,33 @@ Foreach ($s in $source) {
 	$c_Date = $s.date -replace "/", "-"
 	$c_Merchant = $s.description -split "/" | Select -Index 1
 	
-	#Trouver catégorie
+	# Vérifier si fournisseur présent
+	$description = $s.description -split "/"
+	If ($description.count -gt "1") { $supplier = ($description | Select -Index 1).TrimEnd() }
+	Else { $supplier = $null }
+	
+	# Trouver catégorie selon type et fournisseur
 	$find = $null
 	$type = ($s.description -split "/" | Select -Index 0).TrimEnd()
-	$supplier = ($s.description -split "/" | Select -Index 1).TrimEnd()
 	$find = $database | where {$_.Type -eq $type -and $_.Fournisseur -eq $supplier}
 	If ($find) { $c_Category = $find.Categorie }
 	Else { $c_Category = "Uncategorized" }
 	
-	$c_Account = "Nom du compte dans Monarch" # Changer pour le nom du compte correspondant dans Monarch
+	$c_Account = $compteMonarch
 	$c_OriginalStatement = $s.Description
 
-	#Définir montant
+	$c_Notes = $noteMonarch
+	
+	# Définir montant
 	If ($s.Retrait) { $c_amount = $("-" + $s.Retrait) }
 	If ($s.Depot) { $c_amount = $("+" + $s.Depot) }
 	
-	
-	$c_Tags = $null # Peut-être changé si désiré. Remplacer $null par le nom du tag entres guillemets anglais
+	$c_Tags = $tagMonarch
 	
 	$c_Solde = $s.Solde
 	
 	$clean += @(
-    [PSCustomObject]@{ NumLigne=$c_NumLigne; Date=$c_Date; Merchant=$c_Merchant; Category=$c_Category; Account=$c_Account; "Original Statement"=$c_OriginalStatement; Notes=$null; Amount=$c_amount; Tags=$c_Tags; Balance=$c_Solde }	
+    [PSCustomObject]@{ NumLigne=$c_NumLigne; Date=$c_Date; Merchant=$c_Merchant; Category=$c_Category; Account=$c_Account; "Original Statement"=$c_OriginalStatement; Notes=$c_Notes; Amount=$c_amount; Tags=$c_Tags; Balance=$c_Solde }	
 	)
 }
 
