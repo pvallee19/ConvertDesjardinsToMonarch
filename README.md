@@ -22,7 +22,7 @@ Ces champs correspondent à ce que vous trouverez dans le fichier **monarc_mappi
 3.   Editer le fichier **ConvertDesjardinsToMonarch.ps1** et modifier les variables de la section "### Variables principales" dans le haut.
 4.   Exporter un fichier CSV depuis AccèsD en choisissant "Relevés et documents > Conciliation bancaire". Le nombre de jours importe peu, car le script vous
      demandera les lignes à exporter. Choisir le format "CSV" comme format (accentué ou non).
-6.   Executer le script en spécifiant le chemin du fichier à importer:
+6.   Executer le script en spécifiant le chemin du fichier à importer:  
      Example:  **.\ConvertDesjardinsToMonarch.ps1 "C:\Desjardins\releve1.csv"**
 7.   Le script vous demandera le numéro de la ligne à partir de laquelle vous souhaitez faire la conversion.
 8.   Après l'exécution, deux fichiers seront créés:  
