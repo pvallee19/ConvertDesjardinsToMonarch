@@ -1,10 +1,10 @@
 # ConvertDesjardinsToMonarch
 
-** Fichiers **
+**Fichiers**
 ConvertDesjardinsToMonarch.ps1 : Script faisant la conversion des données du format CSV de compte Desjardins vers le format CSV de compte Monarch
 monarc_mapping_database.csv : Base de données contenant les correspondances entre une paire "Type / Fournisseur" et une catégorie Monarch
 
-** Conventions **
+**Conventions**
 Les transactions d'un compte Desjardins sont généralement désignées en 2 parties dans l'état de compte exporté.
   
 Exemple:
