@@ -37,18 +37,21 @@ $clean = @()
 Foreach ($s in $source) {
 	$c_NumLigne = [int]($s.NumLigne).TrimStart('0')
 	$c_Date = $s.date -replace "/", "-"
-	$c_Merchant = $s.description -split "/" | Select -Index 1
-	
+
 	# Vérifier si fournisseur présent
 	$description = $s.description -split "/"
-	If ($description.count -gt "1") { $supplier = ($description | Select -Index 1).TrimEnd() }
-	Else { $supplier = $null }
+	If ($description.count -gt "1") { 
+		$c_Merchant = ($description | Select -Index 1).TrimEnd() 
+	}
+	Else { 
+		$c_Merchant = $null
+	}
 	
 	# Trouver catégorie selon type et fournisseur
 	$find = $null
 	$type = ($s.description -split "/" | Select -Index 0).TrimEnd()
-	$find = $database | where {$_.Type -eq $type -and $_.Fournisseur -eq $supplier}
-	If ($find) { $c_Category = $find.Categorie }
+	$find = $database | where {$_.Type -eq $type -and $_.Fournisseur -eq $c_Merchant}
+	If ($find) { $c_Category = $find.Monarch_Category }
 	Else { $c_Category = "Uncategorized" }
 	
 	$c_Account = $compteMonarch
